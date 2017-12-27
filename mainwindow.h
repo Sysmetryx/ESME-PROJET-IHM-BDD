@@ -5,43 +5,47 @@
 #include <QtSql>
 #include <QLabel>
 #include <QPushButton>
+#include <QtextEdit>
 #include <QMessageBox>
 #include <QGridLayout>
 #include <QApplication>
+#include <QDebug>
+#include <QFile>
+#include <QTextStream>
+#include <QFileDialog>
 #include <QString>
+#include <math.h>
+#include <QTextBlock>
 #include <QLineEdit>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QComboBox>
-#include <QToolTip>
+#include <QVBoxLayout>
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    /*
-    ___________________________________________________________________________________________________________________________________________________________________________________________________________________
-    |
-    |       EEEEEE       sSSSS  MM       MM     EEEEEE                      LAPORTE Nathan 2Z2                          V0.1                                EEEEEE       sSSSS  MM       MM     EEEEEE
-    |       EE         sS       MMMM   MMMM     EE                          laporte_n@esme.fr                           DECEMBRE 2017                       EE         sS       MMMM   MMMM     EE
-    |       EEEEE       sSS     MM  MM   MM     EEEEEE                      https://github.com/Sysmetryx/               PROJET IHM-BDD                      EEEEE       sSS     MM  MM   MM     EEEEEE
-    |       EE            Ss    MM       MM     EE                                                                      GUI/SQL                             EE            Ss    MM       MM     EE
-    |       EEEEE    SSSSs      MM       MM     EEEEEE                                                                  IHM sous Qt5 // BDD avec MySQL      EEEEE    SSSSs      MM       MM     EEEEEE
-    |_____________________________________________________________________________________________________________________________________________________________________________________________________________________
-    FONCTIONNEL :
-    Page de connexion à une base de données. Les infos de bases sont pour le root, mais si les comptes sont bien à jour, on peut se connecter à l'aide d'un compte utilisateur.
-    A VENIR :
-    Page de requête
-    */
+
 public:
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    void connection();
     void connectpageBuildup();
     void connectpageCleanup();
+    void mainpageBuildup();
+    void mp2Buildup();
+    void mp3Buildup();
+    void mp1Buildup();
+    void cleanup();
+    ~MainWindow();
 
 public slots:
-    void connection();
+    void customPrepExec();
+    void selectMode(QString request);
+    void selectTable(QString table);
+    void MP1prepExecReq();
 
 private:
     QGridLayout *mainLayout;
-    QGridLayout *connectLayout;
     QSqlQuery query;
     /*--- CONNECT PAGE ---*/
     QPushButton *connector;
@@ -60,6 +64,91 @@ private:
     QString user = "root";
     QString pwd = "root";
     QString name = "Auchan";
+    /*--- REQ1 / MP ---*/
+    QComboBox *reqSelect;
+    QLabel *reqDesc;
+    QLabel *customReqDesc;
+    QLineEdit *customReq;
+    QPushButton *customExec;
+    QLabel *MP1tableDesc;
+    QComboBox *MP1tableSelect;
+    QLabel *MP1fieldDesc;
+    QComboBox *MP1fieldSelectClient;
+    QComboBox *MP1fieldSelectApprovisionnement;
+    QComboBox *MP1fieldSelectCommandes;
+    QComboBox *MP1fieldSelectDetailsCommande;
+    QComboBox *MP1fieldSelectEmployes;
+    QComboBox *MP1fieldSelectFournisseurs;
+    QComboBox *MP1fieldSelectMagasins;
+    QComboBox *MP1fieldSelectProduits;
+    QComboBox *MP1fieldSelectStocks;
+    QLabel *MP1filterDesc;
+    QComboBox *MP1filterSelect;
+    QLabel *MP1valueDesc;
+    QLineEdit *MP1value;
+    QPushButton *MP1execReq;
+    /*--- REQ2 ---*/
+    //CLIENTS
+    QGridLayout *clientLayout;
+    QLineEdit *clientsId;
+    QLineEdit *clientNom;
+    QLineEdit *clientDateNaissance;
+    QLineEdit *clientEmail;
+    QLineEdit *clientTelephone;
+    QLineEdit *clientAdresse;
+    QLineEdit *clientCodePostal;
+    QLineEdit *clientPays;
+    QLineEdit *clientDateInscription;
+    QLineEdit *clientCarteFidelite;
+    QLabel *clientsIdDesc;
+    QLabel *clientNomDesc;
+    QLabel *clientDateNaissanceDesc;
+    QLabel *clientEmailDesc;
+    QLabel *clientTelephoneDesc;
+    QLabel *clientAdresseDesc;
+    QLabel *clientCodePostalDesc;
+    QLabel *clientPaysDesc;
+    QLabel *clientDateInscriptionDesc;
+    QLabel *clientCarteFideliteDesc;
+    //MAGASINS
+    QLineEdit *magasinsId;
+    QLineEdit *magasinsAdresse;
+    QLineEdit *magasinsCodePostal;
+    QLineEdit *magasinsTelephone;
+    QLineEdit *magasinsPays;
+    QLineEdit *magasinsDateOuverture;
+    QLabel *magasinsIdDesc;
+    QLabel *magasinsAdresseDesc;
+    QLabel *magasinsCodePostalDesc;
+    QLabel *magasinsTelephoneDesc;
+    QLabel *magasinsPaysDesc;
+    QLabel *magasinsDateOuvertureDesc;
+    //Produits
+    QLineEdit *produitsId;
+    QLineEdit *produitsNom;
+    QLineEdit *produitsCategorie;
+    QLineEdit *produitsDescription;
+    QLineEdit *produitsPrixVente;
+    QLabel *produitsIdDesc;
+    QLabel *produitsNomDesc;
+    QLabel *produitsCategorieDesc;
+    QLabel *produitsDescriptionDesc;
+    QLabel *produitsPrixVenteDesc;
+    //Fournisseurs
+    QLineEdit *fournisseursId;
+    QLineEdit *fournisseursNom;
+    QLineEdit *fournisseursTelephone;
+    QLineEdit *fournisseursAdresse;
+    QLineEdit *fournisseursCodePostal;
+    QLineEdit *fournisseursPays;
+    QLabel *fournisseursIdDesc;
+    QLabel *fournisseursNomDesc;
+    QLabel *fournisseursTelephoneDesc;
+    QLabel *fournisseursAdresseDesc;
+    QLabel *fournisseursCodePostalDesc;
+    QLabel *fournisseursPaysDesc;
+    //
+
 
 };
 
