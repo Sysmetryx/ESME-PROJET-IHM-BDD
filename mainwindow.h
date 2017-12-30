@@ -58,16 +58,21 @@ public:
     void createTableBox();
     void createFieldBox();
     void mode1Buildup();
-    void selectField(QString activeTable);
+    void mode1Cleanup();
+    void mode1Rebuild();
     QString prepareQuery1();
     QString prepareQuery1bis();
+    void mode2Buildup();
+    void mode2Cleanup();
+    void mode2Rebuild();
 
 public slots:
     void connection();  
     void customQuery();
-    void selectMode(QString activeMod);
+    void selectMode();
     void execReq1();
     void makeInter();
+    void selectField(QString activeTable);
 
 private:
     /*---misc---*/
@@ -107,7 +112,7 @@ private:
     QString filtertype = "=";
     QLabel *MP1tableDesc;
     QComboBox *tableSelect;
-    QComboBox *fieldSelect;
+    QComboBox *fieldSelect = new QComboBox;
     QLineEdit *value;
     QComboBox *filter1;
     QComboBox *exactBox;
@@ -116,6 +121,8 @@ private:
     QLabel *lowvalueDesc;
     QLineEdit *highvalue;
     QLabel *highvalueDesc;
+    QPushButton *recherche1;
+    QLabel *mod1TableDesc;
 
 };
 

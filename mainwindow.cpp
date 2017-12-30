@@ -127,6 +127,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::mainpageBuildup()
 {
+    mode2Buildup();
+    mode2Cleanup();
     mode1Buildup();
     /*
     mainMenu = new QToolBar();
@@ -151,30 +153,34 @@ void MainWindow::mainpageBuildup()
     mainLayout->addWidget(reqDesc,0,0,1,1,Qt::AlignLeft);
     reqSelect = new QComboBox();
     reqSelect->addItem("Filtre Clients");
-    /*
-    reqSelect->addItem("Extraction personalisée depuis une table");
-    reqSelect->addItem("Insertion d'une ligne dans une table");
-    reqSelect->addItem("Recherche croisée");*/ //NOT DONE YET
-    //connect(reqSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(selectMode(QString)));
+    //reqSelect->addItem("Extraction personalisée depuis une table");
+    reqSelect->addItem("Insertion de données");
+   // reqSelect->addItem("Recherche croisée");*/ //NOT DONE YET
+    connect(reqSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(selectMode()));
     mainLayout->addWidget(reqSelect,1,0,1,1,Qt::AlignLeft);
     customreqBuildup();
 
 }
 
-void MainWindow::selectMode(QString activeMod)
+void MainWindow::selectMode()
 {
-    if(activeMod == "Filtre Clients")
+    if(reqSelect->currentText() == "Filtre Clients")
     {
-        mode1Buildup();
+        mode1Rebuild();
+    }
+    else if(reqSelect->currentText() == "Insertion de données");
+    {
+        mode1Cleanup();
     }
 }
 
 void MainWindow::mode1Buildup()
 {
-    QLabel *mod1TableDesc = new QLabel("Cette requête a pour but \n de filtrer la table client \n avec ce paramètre :");
-    mainLayout->addWidget(mod1TableDesc,2,0,1,1,Qt::AlignLeft);
+    extractTables();
+    mod1TableDesc = new QLabel("Cette requête a pour but \n de filtrer la table client \n avec ce paramètre :");
+    mainLayout->addWidget(mod1TableDesc,3,0,1,1,Qt::AlignLeft);
     QSqlQuery query;
-    if(query.exec("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_SCHEMA='auchan' AND TABLE_NAME='clients')"))
+    if(query.exec("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_SCHEMA='auchan' AND TABLE_NAME='approvisionnement')"))
     {
         while(query.next())
         {
@@ -191,38 +197,68 @@ void MainWindow::mode1Buildup()
     exactBox->addItem("Commence par");
     exactBox->addItem("fini par");
     exactBox->addItem("Condition");
-    mainLayout->addWidget(exactBox, 4,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(exactBox, 5,0,1,1,Qt::AlignLeft);
     filter1 = new QComboBox;
     filter1->addItem("=");
     filter1->addItem("<=");
     filter1->addItem(">=");
     filter1->addItem("<");
     filter1->addItem(">");
-    mainLayout->addWidget(filter1,5,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(filter1,6,0,1,1,Qt::AlignLeft);
     value = new QLineEdit();
-    mainLayout->addWidget(value,6,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(value,7,0,1,1,Qt::AlignLeft);
+    value->setObjectName("test1");
     borderBox = new QCheckBox("Cochez pour avoir une valeur \n comprise dans un ensemble", this);
     connect(borderBox, SIGNAL(clicked(bool)), this, SLOT(makeInter()));
-    mainLayout->addWidget(borderBox, 7,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(borderBox, 8,0,1,1,Qt::AlignLeft);
     lowvalueDesc = new QLabel("Entrez la valeur minimum");
-    mainLayout->addWidget(lowvalueDesc, 8,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(lowvalueDesc, 9,0,1,1,Qt::AlignLeft);
     lowvalueDesc->setVisible(false);
     lowvalue = new QLineEdit();
-    mainLayout->addWidget(lowvalue, 9,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(lowvalue, 10,0,1,1,Qt::AlignLeft);
     lowvalue->setVisible(false);
     highvalueDesc = new QLabel("Entrez la valeur maximum");
-    mainLayout->addWidget(highvalueDesc, 10,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(highvalueDesc, 11,0,1,1,Qt::AlignLeft);
     highvalueDesc->setVisible(false);
     highvalue = new QLineEdit();
-    mainLayout->addWidget(highvalue, 11,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(highvalue, 12,0,1,1,Qt::AlignLeft);
     highvalue->setVisible(false);
-    QPushButton *recherche1 = new QPushButton("recherche");
+    recherche1 = new QPushButton("recherche");
     connect(recherche1, SIGNAL(clicked(bool)), this, SLOT(execReq1()));
-    mainLayout->addWidget(recherche1,12,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(recherche1,13,0,1,1,Qt::AlignLeft);
 
 
 }
 
+void MainWindow::mode1Cleanup()
+{
+    mod1TableDesc->hide();
+    fieldSelect->hide();
+    value->hide();
+    filter1->hide();
+    exactBox->hide();
+    borderBox->hide();
+    lowvalue->hide();
+    highvalue->hide();
+    recherche1->hide();
+    highvalueDesc->hide();
+    lowvalueDesc->hide();
+}
+
+void MainWindow::mode1Rebuild()
+{
+    mod1TableDesc->show();
+    fieldSelect->show();
+    value->show();
+    filter1->show();
+    exactBox->show();
+    borderBox->show();
+    lowvalue->show();
+    lowvalueDesc->show();
+    highvalue->show();
+    highvalueDesc->show();
+    recherche1->show();
+}
 
 void MainWindow::customreqBuildup()
 {
@@ -285,10 +321,15 @@ void MainWindow::selectField(QString activeTable)
             QString reqFull = para1.prepend("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_SCHEMA='").append("' AND TABLE_NAME='").append(para2).append("')");
             if(query.exec(reqFull))
             {
+                fieldNames.clear();
                 while(query.next())
                 {
-                    fieldNames.push_back(q2c(query.value(0).toString()));
+
+                   fieldNames.push_back(q2c(query.value(0).toString()));
+
                 }
+                for(int i = 0; i < fieldSelect->count(); i++)
+                    fieldSelect->removeItem(i);
                 createFieldBox();
             }
             else
@@ -298,7 +339,7 @@ void MainWindow::selectField(QString activeTable)
         }
         else
         {
-            QMessageBox::about(this, "Champs non récupérés", "La récupération des champs a échouée, \n aucune table avec ce nom !");
+            //QMessageBox::about(this, "Champs non récupérés", "La récupération des champs a échouée, \n aucune table avec ce nom 2 !");
         }
     }
 }
@@ -306,13 +347,13 @@ void MainWindow::selectField(QString activeTable)
 
 void MainWindow::createFieldBox()
 {
-    fieldSelect = new QComboBox();
+    fieldSelect->clear();
     for(int i =0; i < fieldNames.size(); i++)
     {
         QString temp = QString::fromStdString(fieldNames[i]);
         fieldSelect->addItem(temp);
     }
-    mainLayout->addWidget(fieldSelect, 3,0,1,1,Qt::AlignLeft);
+    mainLayout->addWidget(fieldSelect, 4,0,1,1,Qt::AlignLeft);
 }
 
 void MainWindow::createTableBox()
@@ -401,7 +442,7 @@ void MainWindow::execReq1()
 
 QString MainWindow::prepareQuery1()
 {
-    QString tableUsed = "clients";
+    QString tableUsed = tableSelect->currentText();
     QString queryPrepared;
     QString filterType;
     int type = exactBox->currentIndex();
@@ -457,10 +498,24 @@ void MainWindow::makeInter()
 
 QString MainWindow::prepareQuery1bis()
 {
-    QString tableUsed = "clients";
+    QString tableUsed = tableSelect->currentText();
     QString queryPrepared;
     tableUsed.prepend("SELECT * FROM ");
     tableUsed.append(" ");
     queryPrepared = tableUsed.append("WHERE(").append(fieldSelect->currentText()).append(" <= '").append(highvalue->text()).append("' ").append("AND ").append(fieldSelect->currentText()).append(" >= '").append(lowvalue->text()).append("')");
     return queryPrepared;
+}
+
+void MainWindow::mode2Buildup()
+{
+
+}
+
+void MainWindow::mode2Rebuild()
+{
+
+}
+void MainWindow::mode2Cleanup()
+{
+
 }
