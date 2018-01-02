@@ -37,6 +37,8 @@ Page de requête
 #include <QList>
 #include <QStackedWidget>
 #include <QCheckBox>
+#include <QFormLayout>
+#include <QDateTime>
 #define q2c(string) string.toStdString()
 
 using namespace std;
@@ -58,16 +60,23 @@ public:
     void createTableBox();
     void createFieldBox();
     void mode1Buildup();
-    void selectField(QString activeTable);
+    void mode1Cleanup();
+    void mode1Rebuild();
     QString prepareQuery1();
     QString prepareQuery1bis();
+    void mode2Buildup();
+    void mode2Cleanup();
+    void mode2Rebuild();
 
 public slots:
     void connection();  
     void customQuery();
-    void selectMode(QString activeMod);
+    void selectMode();
     void execReq1();
     void makeInter();
+    void selectField(QString activeTable);
+    void insertSelection();
+    void insert();
 
 private:
     /*---misc---*/
@@ -107,7 +116,7 @@ private:
     QString filtertype = "=";
     QLabel *MP1tableDesc;
     QComboBox *tableSelect;
-    QComboBox *fieldSelect;
+    QComboBox *fieldSelect = new QComboBox;
     QLineEdit *value;
     QComboBox *filter1;
     QComboBox *exactBox;
@@ -116,6 +125,154 @@ private:
     QLabel *lowvalueDesc;
     QLineEdit *highvalue;
     QLabel *highvalueDesc;
+    QPushButton *recherche1;
+    QLabel *mod1TableDesc;
+    /*--- REQ2 ---*/
+    QFormLayout *approvisionnementLayout;
+    QFormLayout *clientsLayout;
+    QFormLayout *commandesLayout;
+    QFormLayout *details_commandesLayout;
+    QFormLayout *employesLayout;
+    QFormLayout *fournisseursLayout;
+    QFormLayout *magasinsLayout;
+    QFormLayout *produitsLayout;
+    QFormLayout *stocksLayout;
+    QWidget *approvisionnementWidget;
+    QWidget *clientsWidget;
+    QWidget *commandesWidget;
+    QWidget *details_commandeWidget;
+    QWidget *employesWidget;
+    QWidget *fournisseursWidget;
+    QWidget *magasinsWidget;
+    QWidget *produitsWidget;
+    QWidget *stocksWidget;
+    QPushButton *req2exec;
+    QWidget *req2Widget;
+    QVBoxLayout *req2Layout;
+        /* --- Clients Insert --- */
+        QLabel *DescclientInsertID;
+        QLabel *DescclientInsertNOM;
+        QLabel *DescclientInsertDATE_NAISSANCE;
+        QLabel *DescclientInsertEMAIL;
+        QLabel *DescclientInsertTELEPHONE;
+        QLabel *DescclientInsertADRESSE;
+        QLabel *DescclientInsertCP;
+        QLabel *DescclientInsertPAYS;
+        QLabel *DescclientInsertDATE_INSCRIPTION;
+        QLabel *DescclientInsertCARTE_FIDELITE;
+        QLineEdit *InclientInsertID;
+        QLineEdit *InclientInsertNOM;
+        QLineEdit *InclientInsertDATE_NAISSANCE;
+        QLineEdit *InclientInsertEMAIL;
+        QLineEdit *InclientInsertTELEPHONE;
+        QLineEdit *InclientInsertADRESSE;
+        QLineEdit *InclientInsertCP;
+        QLineEdit *InclientInsertPAYS;
+        QLineEdit *InclientInsertDATE_INSCRIPTION;
+        QLineEdit *InclientInsertCARTE_FIDELITE;
+        /* --- Magasins Insert --- */
+        QLabel *DescmagasinsInsertID;
+        QLabel *DescmagasinsInsertADRESSE;
+        QLabel *DescmagasinsInsertCP;
+        QLabel *DescmagasinsInsertTELEPHONE;
+        QLabel *DescmagasinsInsertPAYS;
+        QLabel *DescmagasinsInsertDATE_OUVERTURE;
+        QLineEdit *InmagasinsInsertID;
+        QLineEdit *InmagasinsInsertADRESSE;
+        QLineEdit *InmagasinsInsertCP;
+        QLineEdit *InmagasinsInsertTELEPHONE;
+        QLineEdit *InmagasinsInsertPAYS;
+        QLineEdit *InmagasinsInsertDATE_OUVERTURE;
+        /* --- Fournisseurs Insert --- */
+        QLabel *DescfournisseursInsertID;
+        QLabel *DescfournisseursInsertNOM;
+        QLabel *DescfournisseursInsertTELEPHONE;
+        QLabel *DescfournisseursInsertADRESSE;
+        QLabel *DescfournisseursInsertCP;
+        QLabel *DescfournisseursInsertPAYS;
+        QLineEdit *InfournisseursInsertID;
+        QLineEdit *InfournisseursInsertNOM;
+        QLineEdit *InfournisseursInsertTELEPHONE;
+        QLineEdit *InfournisseursInsertADRESSE;
+        QLineEdit *InfournisseursInsertCP;
+        QLineEdit *InfournisseursInsertPAYS;
+        /* --- PRODUITS INSERT --- */
+        QLabel *DescproduitsInsertID;
+        QLabel *DescproduitsInsertNOM;
+        QLabel *DescproduitsInsertCATEGORIE;
+        QLabel *DescproduitsInsertDESCRIPTION;
+        QLabel *DescproduitsInsertPRIX_UNITAIRE;
+        QLineEdit *InproduitsInsertID;
+        QLineEdit *InproduitsInsertNOM;
+        QLineEdit *InproduitsInsertCATEGORIE;
+        QLineEdit *InproduitsInsertDESCRIPTION;
+        QLineEdit *InproduitsInsertPRIX_UNITAIRE;
+        /* --- STOCKS INSERT --- */
+        QLabel *DescstocksInsertIDPROD;
+        QLabel *DescstocksInsertIDMAG;
+        QLabel *DescstocksInsertQTREST;
+        QComboBox *InstocksIDPROD;
+        QComboBox *InstocksInsertIDMAG;
+        QLineEdit *InstocksInsertQTREST;
+        /* --- DETAILS COMMANDE INSERT --- */
+        QLabel *DescdetailsCommandesInsertIDCOMM;
+        QLabel *DescdetailsCommandesInsertIDPROD;
+        QLabel *DescdetailsCommandesInsertQTE;
+        QComboBox *IndetailsCommandesInsertIDCOMM;
+        QComboBox *IndetailsCommandesInsertIDPROD;
+        QLineEdit *InetailsCommandesInsertQTE;
+        /* --- APPROVISIONNEMENT INSERT --- */
+        QLabel *DescapprovisionnementInsertNUMMAG;
+        QLabel *DescapprovisionnementInsertNUMPROD;
+        QLabel *DescapprovisionnementInsertNUMFOURN;
+        QLabel *DescapprovisionnementInsertDATE;
+        QLabel *DescapprovisionnementInsertQTE;
+        QLabel *DescapprovisionnementInsertPRIXAU;
+        QComboBox *InapprovisionnementInsertNUMMAG;
+        QComboBox *InapprovisionnementInsertNUMPROD;
+        QComboBox *InapprovisionnementInsertNUMFOURN;
+        QLineEdit *InapprovisionnementInsertDATE;
+        QLineEdit *InapprovisionnementInsertQTE;
+        QLineEdit *InapprovisionnementInsertPRIXAU;
+        /*--- EMPLOYES INSERT --- */
+        QLabel *DescemployesInsertID;
+        QLabel *DescemployesInsertNOM;
+        QLabel *DescemployesInsertDATENAIS;
+        QLabel *DescemployesInsertEMAIL;
+        QLabel *DescemployesInsertTELEPHONE;
+        QLabel *DescemployesInsertADRESSE;
+        QLabel *DescemployesInsertCP;
+        QLabel *DescemployesInsertPAYS;
+        QLabel *DescemployesInsertDATEREC;
+        QLabel *DescemployesInsertSALAIRE;
+        QLabel *DescemployesInsertTITRE;
+        QLabel *DescemployesInsertIDMAG;
+        QLineEdit *InemployesInsertID;
+        QLineEdit *InemployesInsertNOM;
+        QLineEdit *InemployesInsertDATENAIS;
+        QLineEdit *InemployesInsertEMAIL;
+        QLineEdit *InemployesInsertTELEPHONE;
+        QLineEdit *InemployesInsertADRESSE;
+        QLineEdit *InemployesInsertCP;
+        QLineEdit *InemployesInsertPAYS;
+        QLineEdit *InemployesInsertDATEREC;
+        QLineEdit *InemployesInsertSALAIRE;
+        QLineEdit *InemployesInsertTITRE;
+        QComboBox *InemployesInsertIDMAG;
+        /* --- COMMANDES INSERT --- */
+        QLabel *DesccommandesInsertID;
+        QLabel *DesccommandesInsertIDCLIENT;
+        QLabel *DesccommandesInsertIDMAG;
+        QLabel *DesccommandesInsertDATE_COMM;
+        QLabel *DesccommandesInsertEMPLOYERES;
+        QLabel *DesccommandesInsertMODE_PAI;
+        QLineEdit *IncommandesInsertID;
+        QComboBox *IncommandesInsertIDCLIENT;
+        QComboBox *IncommandesInsertIDMAG;
+        QLineEdit *IncommandesInsertDATE_COMM;
+        QComboBox *IncommandesInsertEMPLOYERES;
+        QLineEdit *IncommandesInsertMODE_PAI;
+
 
 };
 
