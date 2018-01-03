@@ -127,9 +127,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::mainpageBuildup()
 {
-    //mode2Buildup();
-    //mode2Cleanup();
     mode1Buildup();
+    mode2Buildup();
+    mode3Buildup();
     /*
     mainMenu = new QToolBar();
     this->addToolBar("mainMenu");
@@ -152,10 +152,9 @@ void MainWindow::mainpageBuildup()
     reqDesc = new QLabel("Choisissez une requête :");
     mainLayout->addWidget(reqDesc,0,0,1,1,Qt::AlignLeft);
     reqSelect = new QComboBox();
-    reqSelect->addItem("Filtre Clients");
-    //reqSelect->addItem("Extraction personalisée depuis une table");
+    reqSelect->addItem("Recherche par filtre");
     reqSelect->addItem("Insertion de données");
-   // reqSelect->addItem("Recherche croisée");*/ //NOT DONE YET
+    reqSelect->addItem("Blabla du futur");
     connect(reqSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(selectMode()));
     mainLayout->addWidget(reqSelect,1,0,1,1,Qt::AlignLeft);
     customreqBuildup();
@@ -164,22 +163,31 @@ void MainWindow::mainpageBuildup()
 
 void MainWindow::selectMode()
 {
-    if(reqSelect->currentText() == "Filtre Clients")
+    if(reqSelect->currentText() == "Recherche par filtre")
     {
+        mode3Cleanup();
         mode2Cleanup();
         mode1Rebuild();
     }
     else if(reqSelect->currentText() == "Insertion de données")
     {
+        mode3Cleanup();
         mode1Cleanup();
-        mode2Buildup();
+        mode2Rebuild();
     }
+    else if(reqSelect->currentText() == "Blabla du futur")
+    {
+        mode1Cleanup();
+        mode2Cleanup();
+        mode3Rebuild();
+    }
+
 }
 
 void MainWindow::mode1Buildup()
 {
     extractTables();
-    mod1TableDesc = new QLabel("Cette requête a pour but \n de filtrer la table client \n avec ce paramètre :");
+    mod1TableDesc = new QLabel("Cette requête a pour but \n de filtrer la table choisie \n avec ce paramètre :");
     mainLayout->addWidget(mod1TableDesc,3,0,1,1,Qt::AlignLeft);
     QSqlQuery query;
     if(query.exec("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_SCHEMA='auchan' AND TABLE_NAME='approvisionnement')"))
@@ -881,7 +889,7 @@ void MainWindow::mode2Buildup()
 
     req2Layout->addWidget(req2exec,0,Qt::AlignLeft);
     mainLayout->addWidget(req2Widget, 5,0,1,1);
-    req2Widget->show();
+    req2Widget->hide();
     insertSelection();
     connect(req2exec, SIGNAL(clicked(bool)), this, SLOT(insert()));
 }
@@ -1226,4 +1234,78 @@ void MainWindow::insert()
     {
         QMessageBox::about(this, "Insertion échouée", "L'insertion des données n'a pas pu aboutir, vérifiez la syntaxe des champs.");
     }
+}
+
+void MainWindow::mode3Buildup()
+{
+    tableSelect->hide();
+    req3Layout = new QFormLayout;
+    req3Widget = new QWidget;
+    req3ID = new QLineEdit;
+    req3Desc2 = new QLabel("Entrez l'ID d'un client");
+    req3Exec = new QPushButton("executer");
+    req3Desc1 = new QLabel("permet pour un client donné,\n d'afficher ses postes de dépenses \n par catégorie");
+    connect(req3Exec, SIGNAL(clicked(bool)), this, SLOT(req3execute()));
+    req3Layout->addRow(req3Desc2,req3ID);
+    req3Layout->addRow(req3Desc1,req3Exec);
+    req3Widget->setLayout(req3Layout);
+    mainLayout->addWidget(req3Widget,4,0,Qt::AlignLeft);
+    req3Widget->hide();
+
+
+
+}
+
+
+void MainWindow::mode3Cleanup()
+{
+    tableSelect->show();
+    req3Widget->hide();
+}
+
+void MainWindow::mode3Rebuild()
+{
+    tableSelect->hide();
+    req3Widget->show();
+}
+
+void MainWindow::req3execute()
+{
+    QSqlQuery req3query;
+    QString typedQueryMode3;
+    typedQueryMode3 = "SELECT clients.id,clients.nom,produits.categorie,magasins.adresse,magasins.code_postal,magasins.pays,SUM(details_commande.quantite) as quantite FROM clients JOIN commandes ON clients.id=commandes.idClient JOIN details_commande ON commandes.id=details_commande.idCommande JOIN magasins ON commandes.idMagasin=magasins.id JOIN produits ON details_commande.idProduit=produits.id  WHERE(clients.id ='";
+    typedQueryMode3.append(req3ID->text());
+    typedQueryMode3.append("') GROUP BY produits.categorie;");
+    int rows = 0;
+    int columns = 7;
+    QStandardItem *element;
+    model = new QStandardItemModel(1,columns,this);
+    model->setHeaderData(0, Qt::Horizontal, "Identifiant");
+    model->setHeaderData(1, Qt::Horizontal, "Nom");
+    model->setHeaderData(2, Qt::Horizontal, "Catégorie");
+    model->setHeaderData(3, Qt::Horizontal, "Adresse du magasin");
+    model->setHeaderData(4, Qt::Horizontal, "Code postal du magasin");
+    model->setHeaderData(5, Qt::Horizontal, "Pays");
+    model->setHeaderData(6, Qt::Horizontal, "Quantité");
+    if(req3query.exec(typedQueryMode3))
+    {
+        while(req3query.next())
+        {
+            for(int j = 0; j < columns; j++)
+            {
+                element = new QStandardItem(req3query.value(j).toString());
+                element->setEditable(false);
+                model->setItem(rows,j,element);
+            }
+        rows++;
+        }
+    }
+    else
+    {
+
+    }
+    tableDisplay = new QTableView();
+    tableDisplay->setModel(model);
+    tableDisplay->setSortingEnabled(true);
+    mainLayout->addWidget(tableDisplay, 3,1,25,25);
 }

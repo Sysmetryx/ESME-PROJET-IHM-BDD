@@ -67,6 +67,9 @@ public:
     void mode2Buildup();
     void mode2Cleanup();
     void mode2Rebuild();
+    void mode3Buildup();
+    void mode3Cleanup();
+    void mode3Rebuild();
 
 public slots:
     void connection();  
@@ -77,6 +80,7 @@ public slots:
     void selectField(QString activeTable);
     void insertSelection();
     void insert();
+    void req3execute();
 
 private:
     /*---misc---*/
@@ -272,6 +276,13 @@ private:
         QLineEdit *IncommandesInsertDATE_COMM;
         QComboBox *IncommandesInsertEMPLOYERES;
         QLineEdit *IncommandesInsertMODE_PAI;
+    /* --- MODE 3 --- */
+    QFormLayout *req3Layout;
+    QLabel *req3Desc1;
+    QLabel *req3Desc2;
+    QLineEdit *req3ID;
+    QPushButton *req3Exec;
+    QWidget *req3Widget;
 
 
 };
