@@ -7,10 +7,7 @@ ________________________________________________________________________________
 |       EE            Ss    MM       MM     EE                                                                      GUI/SQL                             EE            Ss    MM       MM     EE
 |       EEEEE    SSSSs      MM       MM     EEEEEE                                                                  IHM sous Qt5 // BDD avec MySQL      EEEEE    SSSSs      MM       MM     EEEEEE
 |_____________________________________________________________________________________________________________________________________________________________________________________________________________________
-FONCTIONNEL :
-Page de connexion à une base de données. Les infos de bases sont pour le root, mais si les comptes sont bien à jour, on peut se connecter à l'aide d'un compte utilisateur.
-A VENIR :
-Page de requête
+
 */
 
 #ifndef MAINWINDOW_H
@@ -39,6 +36,9 @@ Page de requête
 #include <QCheckBox>
 #include <QFormLayout>
 #include <QDateTime>
+#include <QFile>
+#include <QFileDialog>
+#include <QTextStream>
 #define q2c(string) string.toStdString()
 
 using namespace std;
@@ -81,12 +81,16 @@ public slots:
     void insertSelection();
     void insert();
     void req3execute();
-
+    void charger();
+    void save();
 private:
     /*---misc---*/
+    QMenu *menu1;
     QToolBar *mainMenu;
     QTableView *tableDisplay;
     QStandardItemModel *model;
+    QAction *ouvrir;
+    QAction *sauvegarder;
     /*--- TABLES INFO ---*/
     std::vector<string> tableNames;
     QGridLayout *mainLayout;
@@ -283,6 +287,9 @@ private:
     QLineEdit *req3ID;
     QPushButton *req3Exec;
     QWidget *req3Widget;
+    /* --- MODULE SCRIPT --- */
+
+
 
 
 };

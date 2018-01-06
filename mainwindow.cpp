@@ -7,10 +7,7 @@ ________________________________________________________________________________
 |       EE            Ss    MM       MM     EE                                                                      GUI/SQL                             EE            Ss    MM       MM     EE
 |       EEEEE    SSSSs      MM       MM     EEEEEE                                                                  IHM sous Qt5 // BDD avec MySQL      EEEEE    SSSSs      MM       MM     EEEEEE
 |_____________________________________________________________________________________________________________________________________________________________________________________________________________________
-FONCTIONNEL :
-Page de connexion à une base de données. Les infos de bases sont pour le root, mais si les comptes sont bien à jour, on peut se connecter à l'aide d'un compte utilisateur.
-A VENIR :
-Page de requête
+
 */
 #include "mainwindow.h"
 
@@ -130,31 +127,32 @@ void MainWindow::mainpageBuildup()
     mode1Buildup();
     mode2Buildup();
     mode3Buildup();
-    /*
     mainMenu = new QToolBar();
-    this->addToolBar("mainMenu");
-    QAction *ouvrir = new QAction("Ouvrir", this);
-    this->connect(ouvrir, SIGNAL(triggered), qApp, SLOT(void));
+    menu1 = this->menuBar()->addMenu("Fichier");
+    ouvrir = new QAction("Ouvrir", this);
+    connect(ouvrir, SIGNAL(triggered()), this, SLOT(charger()));
     ouvrir->setShortcut(QKeySequence("Ctrl+L"));
-    //ouvrir->setIcon(QIcon("B:\\Users\\NATHZN\\Desktop\\ouvrir.png"));
+    ouvrir->setIcon(QIcon("ouvrir.png"));
     ouvrir->setToolTip("Ouvrir un script .txt");
-    mainMenu->addAction(ouvrir);
-    QAction *sauvegarder = new QAction("Sauvegarder", this);
-    this->connect(sauvegarder, SIGNAL(triggered), qApp, SLOT(void));
+    menu1->addAction(ouvrir);
+    sauvegarder = new QAction("Sauvegarder", this);
+    connect(sauvegarder, SIGNAL(triggered()), this, SLOT(save()));
     sauvegarder->setShortcut(QKeySequence("Ctrl+S"));
     sauvegarder->setToolTip("Sauvegarder le resultat d'une requête");
-    mainMenu->addAction(sauvegarder);
-    QAction *refresh = new QAction("Rafraichir", this);
-    this->connect(refresh, SIGNAL(triggered), qApp, SLOT(void));
-    refresh->setShortcut(QKeySequence("Ctrl+R"));
-    refresh->setToolTip("Rafraichir la base de données");
-    mainMenu->addAction(refresh);*/ //WORK IN PROGRESS
+    sauvegarder->setIcon(QIcon("sauvegarder.png"));
+    menu1->addAction(sauvegarder);
+    QAction *quitter = new QAction("Quitter", this);
+    connect(quitter, SIGNAL(triggered()), this, SLOT(close()));
+    quitter->setShortcut(QKeySequence("Ctrl+Q"));
+    quitter->setToolTip("Quitter le programme");
+    quitter->setIcon(QIcon("quitter.png"));
+    menu1->addAction(quitter);
     reqDesc = new QLabel("Choisissez une requête :");
     mainLayout->addWidget(reqDesc,0,0,1,1,Qt::AlignLeft);
     reqSelect = new QComboBox();
     reqSelect->addItem("Recherche par filtre");
     reqSelect->addItem("Insertion de données");
-    reqSelect->addItem("Blabla du futur");
+    reqSelect->addItem("Informations Client");
     connect(reqSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(selectMode()));
     mainLayout->addWidget(reqSelect,1,0,1,1,Qt::AlignLeft);
     customreqBuildup();
@@ -175,7 +173,7 @@ void MainWindow::selectMode()
         mode1Cleanup();
         mode2Rebuild();
     }
-    else if(reqSelect->currentText() == "Blabla du futur")
+    else if(reqSelect->currentText() == "Informations Client")
     {
         mode1Cleanup();
         mode2Cleanup();
@@ -404,6 +402,8 @@ void MainWindow::customQuery()
          rows++;
         }
     }
+    customReq->clear();
+    customExec->setStyleSheet("background-color: ;");
     tableDisplay = new QTableView();
     tableDisplay->setModel(model);
     tableDisplay->setSortingEnabled(true);
@@ -1308,4 +1308,54 @@ void MainWindow::req3execute()
     tableDisplay->setModel(model);
     tableDisplay->setSortingEnabled(true);
     mainLayout->addWidget(tableDisplay, 3,1,25,25);
+}
+
+void MainWindow::charger()
+{
+    QString scriptName = QFileDialog::getOpenFileName(this,"C:\\","Fichier texte (*.txt)");
+    QFile script(scriptName);
+    script.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream flux(&script);
+    QString scriptContent = flux.readAll();
+    customReq->setText(scriptContent);
+    customExec->setStyleSheet("background-color: green;");
+}
+
+
+void MainWindow::save()
+{
+    //sources here https://stackoverflow.com/questions/27353026/qtableview-output-save-as-csv-or-txt
+    //thanks to "momosxp" for his algorithm.
+    QString filters("CSV files (*.csv);;All files (*.*)");
+    QString defaultFilter("CSV files (*.csv)");
+    QString fileName = QFileDialog::getSaveFileName(0, "Save file", QCoreApplication::applicationDirPath(),
+                     filters, &defaultFilter);
+    QFile file(fileName);
+
+    QAbstractItemModel *modelSave =  tableDisplay->model();
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+      QTextStream data(&file);
+      QStringList strList;
+      for (int i = 0; i < modelSave->columnCount(); i++) {
+          if (modelSave->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString().length() > 0)
+              strList.append("\"" + modelSave->headerData(i, Qt::Horizontal, Qt::DisplayRole).toString() + "\"");
+          else
+              strList.append("");
+      }
+      data << strList.join(";") << "\n";
+      for (int i = 0; i < modelSave->rowCount(); i++) {
+          strList.clear();
+          for (int j = 0; j < modelSave->columnCount(); j++) {
+
+              if (modelSave->data(modelSave->index(i, j)).toString().length() > 0)
+                  strList.append("\"" + modelSave->data(modelSave->index(i, j)).toString() + "\"");
+              else
+                  strList.append("");
+          }
+          data << strList.join(";") + "\n";
+      }
+      data << strList.join(";") << "\n";
+      file.close();
+    }
+
 }
