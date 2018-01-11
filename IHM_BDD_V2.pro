@@ -30,3 +30,5 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h
+
+TRANSLATIONS += english_EN.ts

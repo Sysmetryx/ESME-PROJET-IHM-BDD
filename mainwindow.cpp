@@ -14,6 +14,9 @@ ________________________________________________________________________________
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    this->setBaseSize(1920,1080);
+    settings = new QSettings;
+    translate();
     mainLayout = new QGridLayout; //Layout principal sur lequel viennet se greffer les layouts secondaires
     connectpageBuildup(); //Construit la page de connexion
     this->setCentralWidget (new QWidget(this));
@@ -23,42 +26,42 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::connectpageBuildup()
 {
     portDesc = new QLabel(); //Label qui décrit le port
-    portDesc->setText("Port :");
+    portDesc->setText(tr("Port :"));
     mainLayout->addWidget(portDesc, 0, 0, 1, 1);
     hostDesc = new QLabel();//Label qui décrit l'hôte
-    hostDesc->setText("Hote :");
+    hostDesc->setText(tr("Hote :"));
     mainLayout->addWidget(hostDesc, 1, 0, 1, 1);
     userDesc = new QLabel();//Label qui décrit l'utilisateur
-    userDesc->setText("Utilisateur :");
+    userDesc->setText(tr("Utilisateur :"));
     mainLayout->addWidget(userDesc, 2, 0, 1, 1);
     pwdDesc = new QLabel();//Label qui décrit le mot de passe
-    pwdDesc->setText("Mot de passe :");
+    pwdDesc->setText(tr("Mot de passe :"));
     mainLayout->addWidget(pwdDesc, 3, 0, 1, 1);
     nameDesc = new QLabel();//Label qui décrit le nom de la base
-    nameDesc->setText("Nom :");
+    nameDesc->setText(tr("Nom :"));
     mainLayout->addWidget(nameDesc, 4, 0, 1, 1);
     portText = new QLineEdit();
     mainLayout->addWidget(portText, 0, 1, 1, 1 );
-    portText->setToolTip("Entrez un numéro de port pour la connexion.");
+    portText->setToolTip(tr("Entrez un numéro de port pour la connexion."));
     portText->setText(QString::number(port));
     hostText = new QLineEdit();
-    hostText->setToolTip("Entrez une adresse d'hote pour la connexion.");
+    hostText->setToolTip(tr("Entrez une adresse d'hote pour la connexion."));
     mainLayout->addWidget(hostText, 1, 1, 1, 1);
     hostText->setText(host);
     userText = new QLineEdit();
-    userText->setToolTip("Entrez un nom d'utilisateur pour la connexion.");
+    userText->setToolTip(tr("Entrez un nom d'utilisateur pour la connexion."));
     mainLayout->addWidget(userText, 2, 1, 1, 1);
     userText->setText(user);
     pwdText = new QLineEdit();
-    pwdText->setToolTip("Entrez un mot de passe pour la connexion.");
+    pwdText->setToolTip(tr("Entrez un mot de passe pour la connexion."));
     mainLayout->addWidget(pwdText, 3, 1, 1, 1);
     pwdText->setText(pwd);
     pwdText->setEchoMode(QLineEdit::Password);
     nameText = new QLineEdit();
-    nameText->setToolTip("Entrez un nom pour la base de données.");
+    nameText->setToolTip(tr("Entrez un nom pour la base de données."));
     mainLayout->addWidget(nameText, 4, 1, 1, 1);
     nameText->setText(name);
-    connector = new QPushButton("Connexion", this);
+    connector = new QPushButton(tr("Connexion"), this);
     connect(connector, &QPushButton::clicked, this, &MainWindow::connection);
     mainLayout->addWidget(connector, 5, 3, 1, 1);
 }
@@ -106,13 +109,13 @@ void MainWindow::connection()
     db.setDatabaseName(name);
     if(db.open())
     {
-         QMessageBox::about(this, "Connexion Réussie", "Vous êtes maintenant connecté");
+         QMessageBox::about(this, tr("Connexion Réussie"), tr("Vous êtes maintenant connecté"));
          connectpageCleanup();
          mainpageBuildup();
     }
     else
     {
-         QMessageBox::about(this, "Connexion échouée", "La connexion a échoué");
+         QMessageBox::about(this, tr("Connexion échouée"), tr("La connexion a échoué"));
     }
 }
 
@@ -129,31 +132,47 @@ void MainWindow::mainpageBuildup()
     mode3Buildup();
     tableSelect->show();
     mainMenu = new QToolBar();
-    menu1 = this->menuBar()->addMenu("Fichier");
-    ouvrir = new QAction("Ouvrir", this);
+    menu1 = this->menuBar()->addMenu(tr("Fichier"));
+    ouvrir = new QAction(tr("Ouvrir"), this);
     connect(ouvrir, SIGNAL(triggered()), this, SLOT(charger()));
     ouvrir->setShortcut(QKeySequence("Ctrl+L"));
     ouvrir->setIcon(QIcon("ouvrir.png"));
-    ouvrir->setToolTip("Ouvrir un script .txt");
+    ouvrir->setToolTip(tr("Ouvrir un script .txt"));
     menu1->addAction(ouvrir);
-    sauvegarder = new QAction("Sauvegarder", this);
+    sauvegarder = new QAction(tr("Sauvegarder"), this);
     connect(sauvegarder, SIGNAL(triggered()), this, SLOT(save()));
     sauvegarder->setShortcut(QKeySequence("Ctrl+S"));
-    sauvegarder->setToolTip("Sauvegarder le resultat d'une requête");
+    sauvegarder->setToolTip(tr("Sauvegarder le resultat d'une requête"));
     sauvegarder->setIcon(QIcon("sauvegarder.png"));
     menu1->addAction(sauvegarder);
-    QAction *quitter = new QAction("Quitter", this);
+    QAction *quitter = new QAction(tr("Quitter"), this);
     connect(quitter, SIGNAL(triggered()), this, SLOT(close()));
     quitter->setShortcut(QKeySequence("Ctrl+Q"));
-    quitter->setToolTip("Quitter le programme");
+    quitter->setToolTip(tr("Quitter le programme"));
     quitter->setIcon(QIcon("quitter.png"));
     menu1->addAction(quitter);
-    reqDesc = new QLabel("Choisissez une requête :");
+    langSelect = this->menuBar()->addMenu(tr("Langue"));
+    langBox = new QComboBox(langSelect);
+    langBox->addItem(tr("Français"));
+    langBox->addItem(tr("Anglais"));
+    QWidgetAction *langSetter = new QWidgetAction(langSelect);
+    langSetter->setDefaultWidget(langBox);
+    langSelect->addAction(langSetter);
+    if(settings->value("lang").toString() == "French")
+    {
+        langBox->setCurrentIndex(0);
+    }
+    else if(settings->value("lang").toString() != "French")
+    {
+        langBox->setCurrentIndex(1);
+    }
+    connect(langBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changeLang()));
+    reqDesc = new QLabel(tr("Choisissez une requête :"));
     mainLayout->addWidget(reqDesc,0,0,1,1,Qt::AlignLeft);
     reqSelect = new QComboBox();
-    reqSelect->addItem("Recherche par filtre");
-    reqSelect->addItem("Insertion de données");
-    reqSelect->addItem("Informations Client");
+    reqSelect->addItem(tr("Recherche par filtre"));
+    reqSelect->addItem(tr("Insertion de données"));
+    reqSelect->addItem(tr("Informations Client"));
     connect(reqSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(selectMode()));
     mainLayout->addWidget(reqSelect,1,0,1,1,Qt::AlignLeft);
     customreqBuildup();
@@ -162,19 +181,19 @@ void MainWindow::mainpageBuildup()
 
 void MainWindow::selectMode()
 {
-    if(reqSelect->currentText() == "Recherche par filtre")
+    if(reqSelect->currentText() == tr("Recherche par filtre"))
     {
         mode3Cleanup();
         mode2Cleanup();
         mode1Rebuild();
     }
-    else if(reqSelect->currentText() == "Insertion de données")
+    else if(reqSelect->currentText() == tr("Insertion de données"))
     {
         mode3Cleanup();
         mode1Cleanup();
         mode2Rebuild();
     }
-    else if(reqSelect->currentText() == "Informations Client")
+    else if(reqSelect->currentText() == tr("Informations Client"))
     {
         mode1Cleanup();
         mode2Cleanup();
@@ -186,13 +205,12 @@ void MainWindow::selectMode()
 void MainWindow::mode1Buildup()
 {
     extractTables();
-    mod1TableDesc = new QLabel("Cette requête a pour but \n de filtrer la table choisie \n avec ce paramètre :");
+    mod1TableDesc = new QLabel(tr("Cette requête a pour but \n de filtrer la table choisie \n avec ce paramètre :"));
     mainLayout->addWidget(mod1TableDesc,3,0,1,1,Qt::AlignLeft);
     QSqlQuery query;
     QString query01 = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_SCHEMA='";
     query01.append(name);
     query01.append("' AND TABLE_NAME='approvisionnement');");
-    QMessageBox::about(this, "test1", query01);
     if(query.exec(query01))
     {
         while(query.next())
@@ -203,13 +221,13 @@ void MainWindow::mode1Buildup()
     }
     else
     {
-        QMessageBox::about(this, "Tables non récupérées", "La récupération des tables a échouée");
+        QMessageBox::about(this, tr("Tables non récupérées"), tr("La récupération des tables a échouée"));
     }
     exactBox = new QComboBox;
-    exactBox->addItem("Contient");
-    exactBox->addItem("Commence par");
-    exactBox->addItem("fini par");
-    exactBox->addItem("Condition");
+    exactBox->addItem(tr("Contient"));
+    exactBox->addItem(tr("Commence par"));
+    exactBox->addItem(tr("fini par"));
+    exactBox->addItem(tr("Condition"));
     mainLayout->addWidget(exactBox, 5,0,1,1,Qt::AlignLeft);
     filter1 = new QComboBox;
     filter1->addItem("=");
@@ -220,23 +238,22 @@ void MainWindow::mode1Buildup()
     mainLayout->addWidget(filter1,6,0,1,1,Qt::AlignLeft);
     value = new QLineEdit();
     mainLayout->addWidget(value,7,0,1,1,Qt::AlignLeft);
-    value->setObjectName("test1");
-    borderBox = new QCheckBox("Cochez pour avoir une valeur \n comprise dans un ensemble", this);
+    borderBox = new QCheckBox(tr("Cochez pour avoir une valeur \n comprise dans un ensemble"), this);
     connect(borderBox, SIGNAL(clicked(bool)), this, SLOT(makeInter()));
     mainLayout->addWidget(borderBox, 8,0,1,1,Qt::AlignLeft);
-    lowvalueDesc = new QLabel("Entrez la valeur minimum");
+    lowvalueDesc = new QLabel(tr("Entrez la valeur minimum"));
     mainLayout->addWidget(lowvalueDesc, 9,0,1,1,Qt::AlignLeft);
     lowvalueDesc->hide();
     lowvalue = new QLineEdit();
     mainLayout->addWidget(lowvalue, 10,0,1,1,Qt::AlignLeft);
     lowvalue->hide();
-    highvalueDesc = new QLabel("Entrez la valeur maximum");
+    highvalueDesc = new QLabel(tr("Entrez la valeur maximum"));
     mainLayout->addWidget(highvalueDesc, 11,0,1,1,Qt::AlignLeft);
     highvalueDesc->hide();
     highvalue = new QLineEdit();
     mainLayout->addWidget(highvalue, 12,0,1,1,Qt::AlignLeft);
     highvalue->hide();
-    recherche1 = new QPushButton("recherche");
+    recherche1 = new QPushButton(tr("recherche"));
     connect(recherche1, SIGNAL(clicked(bool)), this, SLOT(execReq1()));
     mainLayout->addWidget(recherche1,13,0,1,1,Qt::AlignLeft);
 
@@ -275,11 +292,11 @@ void MainWindow::mode1Rebuild()
 
 void MainWindow::customreqBuildup()
 {
-    customReqDesc = new QLabel("Requete speciale (MySQL)");
+    customReqDesc = new QLabel(tr("Requete speciale (MySQL)"));
     mainLayout->addWidget(customReqDesc, 0,1,1,1,Qt::AlignTop);
     customReq = new QLineEdit();
     mainLayout->addWidget(customReq, 1,1,1,25,Qt::AlignTop);
-    customExec = new QPushButton("Executer");
+    customExec = new QPushButton(tr("Executer"));
     connect(customExec, SIGNAL(clicked(bool)), this, SLOT(customQuery()));
     mainLayout->addWidget(customExec, 2,15,1,1,Qt::AlignTop);
 }
@@ -318,7 +335,7 @@ void MainWindow::extractTables()
     }
     else
     {
-        QMessageBox::about(this, "Tables non récupérées", "La récupération des tables a échouée");
+        QMessageBox::about(this, tr("Tables non récupérées"), tr("La récupération des tables a échouée"));
     }
 }
 
@@ -347,7 +364,7 @@ void MainWindow::selectField(QString activeTable)
             }
             else
             {
-                QMessageBox::about(this, "Champs non récupérées", "La récupération des champs a échouée, \n aucune table avec ce nom !");
+                QMessageBox::about(this, tr("Champs non récupérées"), tr("La récupération des champs a échouée, \n aucune table avec ce nom !"));
             }
         }
         else
@@ -526,7 +543,7 @@ void MainWindow::mode2Buildup()
 {
     //connect(tableSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(insertSelection()));
     req2Widget = new QWidget;
-    req2exec = new QPushButton("executer");
+    req2exec = new QPushButton(tr("executer"));
     req2Layout = new QVBoxLayout;
     // CLIENTS //
     clientsLayout = new QFormLayout;
@@ -541,16 +558,16 @@ void MainWindow::mode2Buildup()
     DescclientInsertPAYS = new QLabel();
     DescclientInsertDATE_INSCRIPTION = new QLabel();
     DescclientInsertCARTE_FIDELITE = new QLabel();
-    DescclientInsertID->setText("ID :");
-    DescclientInsertNOM->setText("NOM :");
-    DescclientInsertDATE_NAISSANCE->setText("DATE DE NAISSANCE :");
+    DescclientInsertID->setText(tr("ID :"));
+    DescclientInsertNOM->setText(tr("NOM :"));
+    DescclientInsertDATE_NAISSANCE->setText(tr("DATE DE NAISSANCE :"));
     DescclientInsertEMAIL->setText("EMAIL :");
-    DescclientInsertTELEPHONE->setText("TELEPHONE :");
-    DescclientInsertADRESSE->setText("ADRESSE :");
-    DescclientInsertCP->setText("CODE POSTAL :");
-    DescclientInsertPAYS->setText("PAYS :");
-    DescclientInsertDATE_INSCRIPTION->setText("DATE D'INSCRIPTION :");
-    DescclientInsertCARTE_FIDELITE->setText("CARTE DE FIDELITE :");
+    DescclientInsertTELEPHONE->setText(tr("TELEPHONE :"));
+    DescclientInsertADRESSE->setText(tr("ADRESSE :"));
+    DescclientInsertCP->setText(tr("CODE POSTAL :"));
+    DescclientInsertPAYS->setText(tr("PAYS :"));
+    DescclientInsertDATE_INSCRIPTION->setText(tr("DATE D'INSCRIPTION :"));
+    DescclientInsertCARTE_FIDELITE->setText(tr("CARTE DE FIDELITE :"));
     InclientInsertID = new QLineEdit();
     InclientInsertNOM = new QLineEdit();
     InclientInsertDATE_NAISSANCE = new QLineEdit();
@@ -578,12 +595,12 @@ void MainWindow::mode2Buildup()
     //MAGASINS//
     magasinsLayout = new QFormLayout;
     magasinsWidget = new QWidget;
-    DescmagasinsInsertID = new QLabel("ID :");
-    DescmagasinsInsertADRESSE = new QLabel("ADRESSE :");
-    DescmagasinsInsertCP = new QLabel("CODE POSTAL :");
-    DescmagasinsInsertTELEPHONE = new QLabel("TELEPHONE :");
-    DescmagasinsInsertPAYS = new QLabel("PAYS :");
-    DescmagasinsInsertDATE_OUVERTURE = new QLabel("DATE D'OUVERTERE :");
+    DescmagasinsInsertID = new QLabel(tr("ID :"));
+    DescmagasinsInsertADRESSE = new QLabel(tr("ADRESSE :"));
+    DescmagasinsInsertCP = new QLabel(tr("CODE POSTAL :"));
+    DescmagasinsInsertTELEPHONE = new QLabel(tr("TELEPHONE :"));
+    DescmagasinsInsertPAYS = new QLabel(tr("PAYS :"));
+    DescmagasinsInsertDATE_OUVERTURE = new QLabel(tr("DATE D'OUVERTERE :"));
     InmagasinsInsertID = new QLineEdit;
     InmagasinsInsertADRESSE = new QLineEdit;
     InmagasinsInsertCP = new QLineEdit;
@@ -602,12 +619,12 @@ void MainWindow::mode2Buildup()
     //FOURNISSEURS//
     fournisseursLayout = new QFormLayout;
     fournisseursWidget = new QWidget;
-    DescfournisseursInsertID = new QLabel("ID :");
-    DescfournisseursInsertNOM = new QLabel("NOM :");
-    DescfournisseursInsertTELEPHONE = new QLabel("TELEPHONE :");
-    DescfournisseursInsertADRESSE = new QLabel("ADRESSE :");
-    DescfournisseursInsertCP = new QLabel("CODE POSTAL :");
-    DescfournisseursInsertPAYS = new QLabel("PAYS :");
+    DescfournisseursInsertID = new QLabel(tr("ID :"));
+    DescfournisseursInsertNOM = new QLabel(tr("NOM :"));
+    DescfournisseursInsertTELEPHONE = new QLabel(tr("TELEPHONE :"));
+    DescfournisseursInsertADRESSE = new QLabel(tr("ADRESSE :"));
+    DescfournisseursInsertCP = new QLabel(tr("CODE POSTAL :"));
+    DescfournisseursInsertPAYS = new QLabel(tr("PAYS :"));
     InfournisseursInsertID = new QLineEdit;
     InfournisseursInsertNOM = new QLineEdit;
     InfournisseursInsertTELEPHONE = new QLineEdit;
@@ -626,11 +643,11 @@ void MainWindow::mode2Buildup()
     //PRODUITS//
     produitsLayout = new QFormLayout;
     produitsWidget = new QWidget;
-    DescproduitsInsertID = new QLabel("ID :");
-    DescproduitsInsertNOM = new QLabel("NOM :");
-    DescproduitsInsertCATEGORIE = new QLabel("CATEGORIE :");
-    DescproduitsInsertDESCRIPTION = new QLabel("DESCRIPTION :");
-    DescproduitsInsertPRIX_UNITAIRE = new QLabel("PRIX UNITAIRE :");
+    DescproduitsInsertID = new QLabel(tr("ID :"));
+    DescproduitsInsertNOM = new QLabel(tr("NOM :"));
+    DescproduitsInsertCATEGORIE = new QLabel(tr("CATEGORIE :"));
+    DescproduitsInsertDESCRIPTION = new QLabel(tr("DESCRIPTION :"));
+    DescproduitsInsertPRIX_UNITAIRE = new QLabel(tr("PRIX UNITAIRE :"));
     InproduitsInsertID = new QLineEdit;
     InproduitsInsertNOM = new QLineEdit;
     InproduitsInsertCATEGORIE = new QLineEdit;
@@ -648,9 +665,9 @@ void MainWindow::mode2Buildup()
     QSqlQuery queryStocks;
     stocksLayout = new QFormLayout;
     stocksWidget = new QWidget;
-    DescstocksInsertIDPROD = new QLabel("ID PRODUIT :");
-    DescstocksInsertIDMAG = new QLabel("ID MAGASIN :");
-    DescstocksInsertQTREST = new QLabel("QUANTITE RESTANTE :");
+    DescstocksInsertIDPROD = new QLabel(tr("ID PRODUIT :"));
+    DescstocksInsertIDMAG = new QLabel(tr("ID MAGASIN :"));
+    DescstocksInsertQTREST = new QLabel(tr("QUANTITE RESTANTE :"));
     InstocksIDPROD = new QComboBox;
     if(queryStocks.exec("SELECT DISTINCT id FROM produits"))
     {
@@ -686,9 +703,9 @@ void MainWindow::mode2Buildup()
     QSqlQuery queryDetails;
     details_commandesLayout = new QFormLayout;
     details_commandeWidget = new QWidget;
-    DescdetailsCommandesInsertIDCOMM = new QLabel("ID COMMANDE :");
-    DescdetailsCommandesInsertIDPROD = new QLabel("ID PRDUIT :");
-    DescdetailsCommandesInsertQTE = new QLabel("QUANTITE :");
+    DescdetailsCommandesInsertIDCOMM = new QLabel(tr("ID COMMANDE :"));
+    DescdetailsCommandesInsertIDPROD = new QLabel(tr("ID PRODUIT :"));
+    DescdetailsCommandesInsertQTE = new QLabel(tr("QUANTITE :"));
     IndetailsCommandesInsertIDCOMM = new QComboBox;
     if(queryDetails.exec("SELECT DISTINCT id FROM commandes"))
     {
@@ -724,12 +741,12 @@ void MainWindow::mode2Buildup()
     QSqlQuery queryApprovisionnement;
     approvisionnementLayout = new QFormLayout;
     approvisionnementWidget = new QWidget;
-    DescapprovisionnementInsertNUMMAG = new QLabel("NUMERO DU MAGASIN :");
-    DescapprovisionnementInsertNUMPROD = new QLabel("NUMERO DU PRODUIT :");
-    DescapprovisionnementInsertNUMFOURN = new QLabel("NUMERO DU FOURNISSEUR :");
-    DescapprovisionnementInsertDATE = new QLabel("DATE DE LIVRAISON :");
-    DescapprovisionnementInsertQTE = new QLabel("QUANTITE :");
-    DescapprovisionnementInsertPRIXAU = new QLabel("PRIX D'ACHAT UNITAIRE :");
+    DescapprovisionnementInsertNUMMAG = new QLabel(tr("NUMERO DU MAGASIN :"));
+    DescapprovisionnementInsertNUMPROD = new QLabel(tr("NUMERO DU PRODUIT :"));
+    DescapprovisionnementInsertNUMFOURN = new QLabel(tr("NUMERO DU FOURNISSEUR :"));
+    DescapprovisionnementInsertDATE = new QLabel(tr("DATE DE LIVRAISON :"));
+    DescapprovisionnementInsertQTE = new QLabel(tr("QUANTITE :"));
+    DescapprovisionnementInsertPRIXAU = new QLabel(tr("PRIX D'ACHAT UNITAIRE :"));
     InapprovisionnementInsertNUMMAG = new QComboBox;
     if(queryApprovisionnement.exec("SELECT DISTINCT id FROM magasins"))
     {
@@ -782,18 +799,18 @@ void MainWindow::mode2Buildup()
     QSqlQuery queryEmployes;
     employesWidget = new QWidget;
     employesLayout = new QFormLayout;
-    DescemployesInsertID = new QLabel("ID :");
-    DescemployesInsertNOM = new QLabel("NOM :");
-    DescemployesInsertDATENAIS = new QLabel("DATE DE NAISSANCE :");
-    DescemployesInsertEMAIL = new QLabel("EMAIL :");
-    DescemployesInsertTELEPHONE = new QLabel("TELEPHONE :");
-    DescemployesInsertADRESSE = new QLabel("ADRESSE :");
-    DescemployesInsertCP = new QLabel("CODE POSTAL :");
-    DescemployesInsertPAYS = new QLabel("PAYS :");
-    DescemployesInsertDATEREC = new QLabel("DATE DE RECRUTEMENT :");
-    DescemployesInsertSALAIRE = new QLabel("SALAIRE :");
-    DescemployesInsertTITRE = new QLabel("TITRE DU POSTE :");
-    DescemployesInsertIDMAG = new QLabel("ID DU MAGASIN :");
+    DescemployesInsertID = new QLabel(tr("ID :"));
+    DescemployesInsertNOM = new QLabel(tr("NOM :"));
+    DescemployesInsertDATENAIS = new QLabel(tr("DATE DE NAISSANCE :"));
+    DescemployesInsertEMAIL = new QLabel(tr("EMAIL :"));
+    DescemployesInsertTELEPHONE = new QLabel(tr("TELEPHONE :"));
+    DescemployesInsertADRESSE = new QLabel(tr("ADRESSE :"));
+    DescemployesInsertCP = new QLabel(tr("CODE POSTAL :"));
+    DescemployesInsertPAYS = new QLabel(tr("PAYS :"));
+    DescemployesInsertDATEREC = new QLabel(tr("DATE DE RECRUTEMENT :"));
+    DescemployesInsertSALAIRE = new QLabel(tr("SALAIRE :"));
+    DescemployesInsertTITRE = new QLabel(tr("TITRE DU POSTE :"));
+    DescemployesInsertIDMAG = new QLabel(tr("ID DU MAGASIN :"));
     InemployesInsertID = new QLineEdit;
     InemployesInsertNOM = new QLineEdit;
     InemployesInsertDATENAIS = new QLineEdit;
@@ -836,12 +853,12 @@ void MainWindow::mode2Buildup()
     QSqlQuery queryCommandes;
     commandesLayout = new QFormLayout;
     commandesWidget = new QWidget;
-    DesccommandesInsertID = new QLabel("ID :");
-    DesccommandesInsertIDCLIENT = new QLabel("ID CLIENT :");
-    DesccommandesInsertIDMAG = new QLabel("ID MAGASIN:");
-    DesccommandesInsertDATE_COMM = new QLabel("DATE DE LA COMMANDE :");
-    DesccommandesInsertEMPLOYERES = new QLabel("EMPLOYE RESPONSABLE :");
-    DesccommandesInsertMODE_PAI = new QLabel("MODE DE PAIEMENT :");
+    DesccommandesInsertID = new QLabel(tr("ID :"));
+    DesccommandesInsertIDCLIENT = new QLabel(tr("ID CLIENT :"));
+    DesccommandesInsertIDMAG = new QLabel(tr("ID MAGASIN:"));
+    DesccommandesInsertDATE_COMM = new QLabel(tr("DATE DE LA COMMANDE :"));
+    DesccommandesInsertEMPLOYERES = new QLabel(tr("EMPLOYE RESPONSABLE :"));
+    DesccommandesInsertMODE_PAI = new QLabel(tr("MODE DE PAIEMENT :"));
     IncommandesInsertID = new QLineEdit;
     IncommandesInsertIDCLIENT = new QComboBox;
     if(queryCommandes.exec("SELECT DISTINCT id FROM clients"))
@@ -1239,7 +1256,7 @@ void MainWindow::insert()
     }
     else
     {
-        QMessageBox::about(this, "Insertion échouée", "L'insertion des données n'a pas pu aboutir, vérifiez la syntaxe des champs.");
+        QMessageBox::about(this, tr("Insertion échouée"), tr("L'insertion des données n'a pas pu aboutir, vérifiez la syntaxe des champs."));
     }
 }
 
@@ -1249,9 +1266,9 @@ void MainWindow::mode3Buildup()
     req3Layout = new QFormLayout;
     req3Widget = new QWidget;
     req3ID = new QLineEdit;
-    req3Desc2 = new QLabel("Entrez l'ID d'un client");
-    req3Exec = new QPushButton("executer");
-    req3Desc1 = new QLabel("permet pour un client donné,\n d'afficher ses postes de dépenses \n par catégorie");
+    req3Desc2 = new QLabel(tr("Entrez l'ID d'un client"));
+    req3Exec = new QPushButton(tr("executer"));
+    req3Desc1 = new QLabel(tr("permet pour un client donné,\n d'afficher ses postes de dépenses \n par catégorie"));
     connect(req3Exec, SIGNAL(clicked(bool)), this, SLOT(req3execute()));
     req3Layout->addRow(req3Desc2,req3ID);
     req3Layout->addRow(req3Desc1,req3Exec);
@@ -1287,13 +1304,13 @@ void MainWindow::req3execute()
     int columns = 7;
     QStandardItem *element;
     model = new QStandardItemModel(1,columns,this);
-    model->setHeaderData(0, Qt::Horizontal, "Identifiant");
-    model->setHeaderData(1, Qt::Horizontal, "Nom");
-    model->setHeaderData(2, Qt::Horizontal, "Catégorie");
-    model->setHeaderData(3, Qt::Horizontal, "Adresse du magasin");
-    model->setHeaderData(4, Qt::Horizontal, "Code postal du magasin");
-    model->setHeaderData(5, Qt::Horizontal, "Pays");
-    model->setHeaderData(6, Qt::Horizontal, "Quantité");
+    model->setHeaderData(0, Qt::Horizontal, tr("Identifiant"));
+    model->setHeaderData(1, Qt::Horizontal, tr("Nom"));
+    model->setHeaderData(2, Qt::Horizontal, tr("Catégorie"));
+    model->setHeaderData(3, Qt::Horizontal, tr("Adresse du magasin"));
+    model->setHeaderData(4, Qt::Horizontal, tr("Code postal du magasin"));
+    model->setHeaderData(5, Qt::Horizontal, tr("Pays"));
+    model->setHeaderData(6, Qt::Horizontal, tr("Quantité"));
     if(req3query.exec(typedQueryMode3))
     {
         while(req3query.next())
@@ -1364,5 +1381,24 @@ void MainWindow::save()
       data << strList.join(";") << "\n";
       file.close();
     }
+
+}
+
+void MainWindow::changeLang()
+{
+    if(langBox->currentIndex() == 0)
+    {
+        settings->setValue("lang", "French");
+        settings->sync();
+    }
+    else if(langBox->currentIndex() == 1)
+    {
+        settings->setValue("lang", "English");
+        settings->sync();
+    }
+}
+
+void MainWindow::translate()
+{
 
 }

@@ -38,7 +38,12 @@ ________________________________________________________________________________
 #include <QDateTime>
 #include <QFile>
 #include <QFileDialog>
+#include <QLocale>
 #include <QTextStream>
+#include <QSettings>
+#include <QVariant>
+#include <QWidgetAction>
+#include <QTranslator>
 #define q2c(string) string.toStdString()
 
 using namespace std;
@@ -83,6 +88,8 @@ public slots:
     void req3execute();
     void charger();
     void save();
+    void changeLang();
+    void translate();
 private:
     /*---misc---*/
     QMenu *menu1;
@@ -287,7 +294,11 @@ private:
     QLineEdit *req3ID;
     QPushButton *req3Exec;
     QWidget *req3Widget;
-    /* --- MODULE SCRIPT --- */
+    /* --- TRAD --- */
+    QSettings *settings;
+    QMenu *langSelect;
+    QComboBox *langBox;
+
 
 
 

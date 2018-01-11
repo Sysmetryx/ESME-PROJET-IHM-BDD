@@ -15,6 +15,25 @@ ________________________________________________________________________________
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QSettings settings("SysSoftware", "Data Surveyor");
+    QVariant v = settings.value("lang");
+    QApplication::setOrganizationName("SysSoftware");
+    QApplication::setOrganizationDomain("https://github.com/Sysmetryx/ESME-PROJET-IHM-BDD");
+    QApplication::setApplicationDisplayName("Data Surveyor");
+    QApplication::setApplicationName("Data Surveyor");
+    QApplication::setApplicationVersion("1.0");
+    QTranslator translator;
+    if(settings.value("lang") == "French")
+    {
+
+    }
+    else if(settings.value("lang") == "English")
+    {
+        if(translator.load("english_EN.qm"))
+        {
+            a.installTranslator(&translator);
+        }
+    }
     MainWindow w;
     w.show();
 
