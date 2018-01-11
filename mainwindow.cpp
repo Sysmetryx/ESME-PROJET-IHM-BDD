@@ -127,6 +127,7 @@ void MainWindow::mainpageBuildup()
     mode1Buildup();
     mode2Buildup();
     mode3Buildup();
+    tableSelect->show();
     mainMenu = new QToolBar();
     menu1 = this->menuBar()->addMenu("Fichier");
     ouvrir = new QAction("Ouvrir", this);
@@ -188,7 +189,11 @@ void MainWindow::mode1Buildup()
     mod1TableDesc = new QLabel("Cette requête a pour but \n de filtrer la table choisie \n avec ce paramètre :");
     mainLayout->addWidget(mod1TableDesc,3,0,1,1,Qt::AlignLeft);
     QSqlQuery query;
-    if(query.exec("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_SCHEMA='auchan' AND TABLE_NAME='approvisionnement')"))
+    QString query01 = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE (TABLE_SCHEMA='";
+    query01.append(name);
+    query01.append("' AND TABLE_NAME='approvisionnement');");
+    QMessageBox::about(this, "test1", query01);
+    if(query.exec(query01))
     {
         while(query.next())
         {
@@ -300,8 +305,9 @@ void MainWindow::customreqRebuild()
 void MainWindow::extractTables()
 {
     QSqlQuery query;
-    QString para1 = name;
-    QString reqFull = para1.prepend("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.tables where table_schema='").append("'");
+    QString reqFull = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE(table_schema='";
+    reqFull.append(name);
+    reqFull.append("');");
     if(query.exec(reqFull))
     {
         while(query.next())
@@ -346,7 +352,7 @@ void MainWindow::selectField(QString activeTable)
         }
         else
         {
-            //QMessageBox::about(this, "Champs non récupérés", "La récupération des champs a échouée, \n aucune table avec ce nom 2 !");
+
         }
     }
 }
@@ -366,13 +372,14 @@ void MainWindow::createFieldBox()
 void MainWindow::createTableBox()
 {
     tableSelect = new QComboBox();
-    for(int i =0; i < tableNames.size(); i++)
+    for(int i = 0; i < tableNames.size(); i++)
     {
         QString temp = QString::fromStdString(tableNames[i]);
         tableSelect->addItem(temp);
     }
     connect(tableSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(selectField(QString)));
     mainLayout->addWidget(tableSelect, 2,0,1,1,Qt::AlignLeft);
+    tableSelect->show();
 }
 
 void MainWindow::customQuery()
@@ -422,7 +429,7 @@ void MainWindow::execReq1()
     {
         queryText = prepareQuery1bis();
     }
-    QMessageBox::about(this, "request :", queryText);
+    //QMessageBox::about(this, "request :", queryText);
     QSqlQuery query;
     int rows = 0;
     int columns = fieldNames.size();
@@ -517,7 +524,7 @@ QString MainWindow::prepareQuery1bis()
 
 void MainWindow::mode2Buildup()
 {
-    connect(tableSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(insertSelection()));
+    //connect(tableSelect, SIGNAL(currentTextChanged(QString)), this, SLOT(insertSelection()));
     req2Widget = new QWidget;
     req2exec = new QPushButton("executer");
     req2Layout = new QVBoxLayout;
